@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>u.wiol.io</title>
+</head>
+<body>
+<div>
+  <h1>u.wiol.io</h1>
+  <hr />
+
+  <h2>{{.}}</h2>
+
+  <h3>Form</h3>
+  <form method="post" action="/" enctype="multipart/form-data">
+    <fieldset>
+      <input type="file" name="files" multiple="multiple">
+      <input type="submit" name="upload" value="Upload">
+    </fieldset>
+  </form> 
+
+  <h3>cURL</h3>
+  <pre>curl -F "file=@youFileHere.ext" u.wiol.io</pre>
+
+</div>
+</body>
+</html>
