@@ -1,11 +1,11 @@
-goload
-======
+neckup - For autist neckbeards (TM)
+===================================
 
 Simple upload service using cURL or form.
 
 
 BUILD:
-  go build goload.go
+  go build neckup.go
 
 RUN:
-  ./goload
+  ./neckup

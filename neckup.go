@@ -17,6 +17,8 @@ import (
 const TITLE = "u.wiol.io"           // Title for views
 const PAGE_URI = "http://u.wiol.io" // URI for the home page
 const FILE_URI = "http://f.wiol.io" // URI for the files
+const LISTEN_PORT = "8080"          // The port the server should listen to
+const UPLOAD_DIR = "./files/"       // Save all files to this directory
 
 // Length of random string that prefixes the filename upon upload
 const TMP_FILENAME_LEN = 24
@@ -85,7 +87,9 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 		files := make(map[string]string)
 
 		if err != nil {
-			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+			log.Print(err)
+
+			http.Error(resWriter, "Failed to read multipart stream.", http.StatusInternalServerError)
 			return
 		}
 
@@ -109,17 +113,21 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 			parsedPart := io.TeeReader(part, fileHash) // Feed hash with part
 
 			if err != nil {
-				http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+				log.Print(err)
+
+				http.Error(resWriter, "Something went wrong.", http.StatusInternalServerError)
 				return
 			}
 
 			if _, err := io.Copy(tempDest, parsedPart); err != nil {
-				http.Error(resWriter, err.Error(), http.StatusInternalServerError)
+				log.Print(err)
+
+				http.Error(resWriter, "Unable to parse file.", http.StatusInternalServerError)
 				return
 			}
 
 			finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:FINAL_FILENAME_LEN] + filepath.Ext(tempPath)
-			os.Rename(tempPath, filepath.Join("./files/", finalFilename))
+			os.Rename(tempPath, filepath.Join(UPLOAD_DIR, finalFilename))
 			files[finalFilename] = part.FileName()
 
 		}
@@ -162,7 +170,7 @@ func main() {
 
 	http.HandleFunc("/", uploadHandler)
 
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":"+LISTEN_PORT, nil)
 
 	if err != nil {
 		log.Fatal("Failed to listen: ", err)
