@@ -1,18 +1,78 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"html/template"
 	"io"
+	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"path/filepath"
+	"time"
 )
 
+// Settings
+const TITLE = "u.wiol.io"           // Title for views
+const PAGE_URI = "http://u.wiol.io" // URI for the home page
+const FILE_URI = "http//f.wiol.io"  // URI for the files
+
+// Length of random string that prefixes the filename upon upload
+const TMP_FILENAME_LEN = 24
+
+// Length of the base filename (excluding extension)
+const FINAL_FILENAME_LEN = 6
+
+// Cache all the templates
 var views = template.Must(template.ParseFiles("views/index.html"))
 
+// Allowed characters for random string generator @see randomString
+var characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+/**
+ * viewHandler
+ * Render views/templates.
+ *
+ * @param		resWriter	The response writer from net/http lib.
+ * @param		view			Name for the view that should be rendered.
+ * @param		data			Optional, data that can be used by the view.
+ * @return						nil
+ */
 func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
-	views.ExecuteTemplate(resWriter, view+".html", data)
+
+	page := struct {
+		Title   string
+		PageURI string
+		FileURI string
+		Data    interface{}
+	}{
+		TITLE,
+		PAGE_URI,
+		FILE_URI,
+		data,
+	}
+
+	views.ExecuteTemplate(resWriter, view+".html", &page)
+
 }
 
+/**
+ * uploadHandler
+ * Handle upload requests.
+ *
+ * If the request from the client is of the type GET, it'll call
+ * viewHandler and thereby render the index page.
+ *
+ * Else if the request from the client is of the type POST, it'll
+ * upload all files contained in the request and then call viewHandler
+ * and thereby render the index with a populated data parameter containing
+ * the status.
+ *
+ * @param		resWriter	The response writer from net/http lib.
+ * @param		req				The request that'll uploadHandler will respond for.
+ * @return						nil
+ */
 func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
@@ -22,6 +82,7 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 
 	case "POST":
 		reader, err := req.MultipartReader()
+		files := make(map[string]string)
 
 		if err != nil {
 			http.Error(resWriter, err.Error(), http.StatusInternalServerError)
@@ -29,6 +90,8 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 		}
 
 		for {
+			randFilenamePart := randomString(TMP_FILENAME_LEN)
+			fileHash := md5.New()
 			part, err := reader.NextPart()
 
 			if err == io.EOF {
@@ -39,22 +102,29 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 				continue // Empty file name, skip current iteration
 			}
 
-			dst, err := os.Create("./files/" + part.FileName())
-			defer dst.Close()
+			tempPath := filepath.Join(os.TempDir(), randFilenamePart+part.FileName())
+			tempDest, err := os.Create(tempPath)
+			defer tempDest.Close()
+
+			parsedPart := io.TeeReader(part, fileHash) // Feed hash with part
 
 			if err != nil {
 				http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 				return
 			}
 
-			if _, err := io.Copy(dst, part); err != nil {
+			if _, err := io.Copy(tempDest, parsedPart); err != nil {
 				http.Error(resWriter, err.Error(), http.StatusInternalServerError)
 				return
 			}
 
+			finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:FINAL_FILENAME_LEN] + filepath.Ext(tempPath)
+			os.Rename(tempPath, filepath.Join("./files/", finalFilename))
+			files[finalFilename] = part.FileName()
+
 		}
 
-		viewHandler(resWriter, "index", "Upload successful.")
+		viewHandler(resWriter, "index", files)
 
 	default:
 		resWriter.WriteHeader(http.StatusMethodNotAllowed)
@@ -62,10 +132,40 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 
 }
 
+/**
+ * randomString
+ * Generate random string.
+ *
+ * @param		length	Length of the random that should be generated.
+ * @return					Random string with the length specified.
+ */
+func randomString(length int) string {
+
+	randBits := make([]rune, length)
+	for char := range randBits {
+		randBits[char] = characters[rand.Intn(len(characters))]
+	}
+
+	return string(randBits)
+}
+
+/**
+ * main
+ * Da glorious main function that initializes everything.
+ *
+ * @return nil
+ */
 func main() {
+
+	// Seed pseudo-random number generator
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	http.HandleFunc("/", uploadHandler)
 
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+
+	if err != nil {
+		log.Fatal("Failed to listen: ", err)
+	}
 
 }

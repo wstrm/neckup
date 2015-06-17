@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>u.wiol.io</title>
+<title>{{ .Title }}</title>
 </head>
 <body>
 <div>
-  <h1>u.wiol.io</h1>
+  <h1>{{ .Title }}</h1>
   <hr />
 
-  <h2>{{.}}</h2>
+  {{ if .Data }}
+  <ul>
+    {{ range $key, $value := .Data }}
+    <li><strong>{{ $value }}</strong>: <a href="{{ $.FileURI }}/{{ $key }}">{{ $.FileURI }}/{{ $key }}</a></li>
+    {{ end }}
+  </ul>
+  {{ end }}
 
   <h3>Form</h3>
   <form method="post" action="/" enctype="multipart/form-data">
@@ -19,7 +25,7 @@
   </form> 
 
   <h3>cURL</h3>
-  <pre>curl -F "file=@youFileHere.ext" u.wiol.io</pre>
+  <pre>curl -F "file=@yourFileHere.ext" {{ .PageURI }}</pre>
 
 </div>
 </body>
