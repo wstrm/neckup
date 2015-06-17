@@ -41,8 +41,8 @@ SETUP:
       localhost:8080 or w/e you specified,
         - see examples/nginx/neckup
     
-    * Create a nginx server block that has the ./files or w/e
-      you specified,
+    * Create a nginx server block that has the ./files as root
+      or w/e you specified,
         - see examples/nginx/files
 
     * Optionally add an init script for the process.
