@@ -53,3 +53,6 @@ SETUP:
 
 DEMO:
   http://u.wiol.io
+
+LICENSE:
+  GPL-3.0 (can be found at /LICENSE)
