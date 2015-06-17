@@ -16,7 +16,7 @@ import (
 // Settings
 const TITLE = "u.wiol.io"           // Title for views
 const PAGE_URI = "http://u.wiol.io" // URI for the home page
-const FILE_URI = "http//f.wiol.io"  // URI for the files
+const FILE_URI = "http://f.wiol.io" // URI for the files
 
 // Length of random string that prefixes the filename upon upload
 const TMP_FILENAME_LEN = 24
