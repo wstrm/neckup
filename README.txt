@@ -50,3 +50,6 @@ SETUP:
         - see examples/upstart/neckup.conf (upstart)
 
     * Reload nginx and start neckup and you should be good to go!
+
+DEMO:
+  http://u.wiol.io
