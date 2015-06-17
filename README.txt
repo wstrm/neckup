@@ -16,3 +16,37 @@ BUILD:
 
 RUN:
   ./neckup
+
+SETUP:
+  This setup uses a neckup user where everything is placed
+  in its home directory (/home/neckup/neckup/).
+
+  You should already have setup a nginx web server.
+
+    * Create and setup the neckup user,
+        - $ useradd -m neckup
+        - $ su neckup
+        - $ cd ~
+
+    * Get the latest version of neckup and cd into it,
+        - $ git clone git@github.com:willeponken/neckup.git
+        - $ cd neckup
+
+    * Edit the constants in neckup.go to your preference and
+      then compile,
+        - $ editor neckup.go
+        - $ go build neckup.go
+
+    * Create a nginx server block that proxies requests to
+      localhost:8080 or w/e you specified,
+        - see examples/nginx/neckup
+    
+    * Create a nginx server block that has the ./files or w/e
+      you specified,
+        - see examples/nginx/files
+
+    * Optionally add an init script for the process.
+      Feel free to add more scripts in "examples/".
+        - see examples/upstart/neckup.conf (upstart)
+
+    * Reload nginx and start neckup and you should be good to go!

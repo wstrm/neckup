@@ -1,0 +1,10 @@
+server {
+  listen 80;
+  root /home/neckup/neckup/files;
+  server_name files.youdomain.com;
+  client_max_body_size 50M;
+
+  location = / {
+    return 301 $scheme://neckup.yourdomain.com$request_uri;
+  }
+}
