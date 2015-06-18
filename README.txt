@@ -44,11 +44,11 @@ SETUP:
 
     * Create a nginx server block that proxies requests to
       localhost:8080 or w/e you specified,
-        - see examples/nginx/neckup
+        - see second block in examples/nginx/neckup
     
     * Create a nginx server block that has the ./files as root
       or w/e you specified,
-        - see examples/nginx/files
+        - see first block in examples/nginx/neckup
 
     * Optionally add an init script for the process.
       Feel free to add more scripts in "examples/".
