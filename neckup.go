@@ -32,15 +32,14 @@ var views = template.Must(template.ParseFiles("views/index.html"))
 // Allowed characters for random string generator @see randomString
 var characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-/**
- * viewHandler
- * Render views/templates.
- *
- * @param		resWriter	The response writer from net/http lib.
- * @param		view			Name for the view that should be rendered.
- * @param		data			Optional, data that can be used by the view.
- * @return						nil
- */
+// viewHandler renders views/templates.
+//
+// The function takes three arguments, resWriter which should contain
+// the response to write to, view which should contain the view excluding its
+// extension (index, upload etc. And not index.html, upload.html etc.).
+
+// Lastly the data argument takes an interface that is optional and can contain
+// data that should also be sent to the view.
 func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
 
 	page := struct {
@@ -59,22 +58,15 @@ func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
 
 }
 
-/**
- * uploadHandler
- * Handle upload requests.
- *
- * If the request from the client is of the type GET, it'll call
- * viewHandler and thereby render the index page.
- *
- * Else if the request from the client is of the type POST, it'll
- * upload all files contained in the request and then call viewHandler
- * and thereby render the index with a populated data parameter containing
- * the status.
- *
- * @param		resWriter	The response writer from net/http lib.
- * @param		req				The request that'll uploadHandler will respond for.
- * @return						nil
- */
+// uploadHandler handles upload requests.
+//
+// If the request from the client is of the type GET, it'll call
+// viewHandler and thereby render the index page.
+//
+// Else if the request from the client is of the type POST, it'll
+// upload all files contained in the request and then call viewHandler
+// and thereby render the index with a populated data parameter containing
+// the status.
 func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
@@ -140,13 +132,10 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 
 }
 
-/**
- * randomString
- * Generate random string.
- *
- * @param		length	Length of the random that should be generated.
- * @return					Random string with the length specified.
- */
+// randomString generates a random string and returns it.
+//
+// The length argument decides the length of the random string that should
+// be generated.
 func randomString(length int) string {
 
 	randBits := make([]rune, length)
@@ -157,12 +146,7 @@ func randomString(length int) string {
 	return string(randBits)
 }
 
-/**
- * main
- * Da glorious main function that initializes everything.
- *
- * @return nil
- */
+// main function initializes everything.
 func main() {
 
 	// Seed pseudo-random number generator
