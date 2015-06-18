@@ -12,7 +12,10 @@ CONTRIBUTE:
   It's obviously crappy code in some peoples eyes.
 
 BUILD:
-  go build neckup.go
+  go build
+
+TEST:
+  go test
 
 RUN:
   ./neckup
