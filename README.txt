@@ -17,6 +17,9 @@ BUILD:
 RUN:
   ./neckup
 
+HELP:
+  ./neckup --help
+
 SETUP:
   This setup uses a neckup user where everything is placed
   in its home directory (/home/neckup/neckup/).
@@ -32,10 +35,9 @@ SETUP:
         - $ git clone git@github.com:willeponken/neckup.git
         - $ cd neckup
 
-    * Edit the constants in neckup.go to your preference and
-      then compile,
-        - $ editor neckup.go
+    * Comepile neckup.go and show the different flags available,,
         - $ go build neckup.go
+        - $ ./neckup --help
 
     * Create a nginx server block that proxies requests to
       localhost:8080 or w/e you specified,

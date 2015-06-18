@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"flag"
 	"html/template"
 	"io"
 	"log"
@@ -13,24 +14,53 @@ import (
 	"time"
 )
 
-// Settings
-const TITLE = "u.wiol.io"           // Title for views
-const PAGE_URI = "http://u.wiol.io" // URI for the home page
-const FILE_URI = "http://f.wiol.io" // URI for the files
-const LISTEN_PORT = "8080"          // The port the server should listen to
-const UPLOAD_DIR = "./files/"       // Save all files to this directory
+// Flag types
+var (
+	flagTitle       string
+	flagPageURI     string
+	flagFileURI     string
+	flagListenPort  string
+	flagUploadDir   string
+	flagTmpDir      string
+	flagRandPrefix  int
+	flagFilenameLen int
+)
 
-// Length of random string that prefixes the filename upon upload
-const TMP_FILENAME_LEN = 24
+// init function initializes all the flags for later usage.
+// All flags can be user defined, but also they also have a
+// default value.
+func init() {
 
-// Length of the base filename (excluding extension)
-const FINAL_FILENAME_LEN = 6
+	// Constant flags
+	const (
+		DEFAULT_FLAG_TITLE        = "neckup"
+		DEFAULT_FLAG_PAGE_URI     = "http://yourdomain.com"
+		DEFAULT_FLAG_FILE_URI     = "http://files.yourdomain.com"
+		DEFAULT_FLAG_LISTEN_PORT  = "8080"
+		DEFAULT_FLAG_UPLOAD_DIR   = "./files"
+		DEFAULT_FLAG_RAND_PREFIX  = 24
+		DEFAULT_FLAG_FILENAME_LEN = 6
+	)
 
-// Cache all the templates
-var views = template.Must(template.ParseFiles("views/index.html"))
+	// Variable flags
+	var DEFAULT_FLAG_TMP_DIR = os.TempDir()
 
-// Allowed characters for random string generator @see randomString
-var characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	flag.StringVar(&flagTitle, "title", DEFAULT_FLAG_TITLE, "the title that is shown in the view")
+	flag.StringVar(&flagPageURI, "page_uri", DEFAULT_FLAG_PAGE_URI, "the page URI that is used in the view")
+	flag.StringVar(&flagFileURI, "file_uri", DEFAULT_FLAG_FILE_URI, "the file URI where the user can find the files")
+	flag.StringVar(&flagListenPort, "port", DEFAULT_FLAG_LISTEN_PORT, "port that the server shoud listen to")
+	flag.StringVar(&flagUploadDir, "upload_dir", DEFAULT_FLAG_UPLOAD_DIR, "directory that the server should save all uploaded files to")
+	flag.StringVar(&flagTmpDir, "tmp_dir", DEFAULT_FLAG_TMP_DIR, "directory that the server should temporarily store file uploads")
+	flag.IntVar(&flagRandPrefix, "rand_prefix", DEFAULT_FLAG_RAND_PREFIX, "length of random string that prefixes the temporary filename upon upload")
+	flag.IntVar(&flagFilenameLen, "filename_len", DEFAULT_FLAG_FILENAME_LEN, "length of the base filename (excluding extension)")
+
+	flag.Parse()
+}
+
+var (
+	views      = template.Must(template.ParseFiles("views/index.html"))         // Cache all the templates
+	characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") // Allowed characters for random string generator @see randomString
+)
 
 // viewHandler renders views/templates.
 //
@@ -48,9 +78,9 @@ func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
 		FileURI string
 		Data    interface{}
 	}{
-		TITLE,
-		PAGE_URI,
-		FILE_URI,
+		flagTitle,
+		flagPageURI,
+		flagFileURI,
 		data,
 	}
 
@@ -86,7 +116,7 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 		}
 
 		for {
-			randFilenamePart := randomString(TMP_FILENAME_LEN)
+			randFilenamePart := randomString(flagRandPrefix)
 			fileHash := md5.New()
 			part, err := reader.NextPart()
 
@@ -98,7 +128,7 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 				continue // Empty file name, skip current iteration
 			}
 
-			tempPath := filepath.Join(os.TempDir(), randFilenamePart+part.FileName())
+			tempPath := filepath.Join(flagTmpDir, randFilenamePart+part.FileName())
 			tempDest, err := os.Create(tempPath)
 			defer tempDest.Close()
 
@@ -118,8 +148,8 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 				return
 			}
 
-			finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:FINAL_FILENAME_LEN] + filepath.Ext(tempPath)
-			os.Rename(tempPath, filepath.Join(UPLOAD_DIR, finalFilename))
+			finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
+			os.Rename(tempPath, filepath.Join(flagUploadDir, finalFilename))
 			files[finalFilename] = part.FileName()
 
 		}
@@ -154,7 +184,7 @@ func main() {
 
 	http.HandleFunc("/", uploadHandler)
 
-	err := http.ListenAndServe(":"+LISTEN_PORT, nil)
+	err := http.ListenAndServe(":"+flagListenPort, nil)
 
 	if err != nil {
 		log.Fatal("Failed to listen: ", err)
