@@ -149,7 +149,13 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 			}
 
 			finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
-			os.Rename(tempPath, filepath.Join(flagUploadDir, finalFilename))
+			finalFilepath := filepath.Join(flagUploadDir, finalFilename)
+
+			// Do not copy to storage path if file already exist
+			if _, err := os.Stat(finalFilepath); os.IsNotExist(err) {
+				os.Rename(tempPath, finalFilepath)
+			}
+
 			files[finalFilename] = part.FileName()
 
 		}
