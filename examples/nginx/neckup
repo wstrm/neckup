@@ -1,7 +1,7 @@
 server {
   listen 80;
   root /usr/share/nginx/html;
-  server_name neckup.yourdomain.com;
+  server_name yourdomain.com;
   client_max_body_size 50M;
 
   location ^~ / {

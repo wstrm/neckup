@@ -1,7 +1,7 @@
 server {
   listen 80;
   root /home/neckup/neckup/files;
-  server_name files.youdomain.com;
+  server_name files.yourdomain.com;
   client_max_body_size 50M;
 
   location = / {
