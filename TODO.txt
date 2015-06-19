@@ -1,0 +1,10 @@
+neckup - Todo
+=============
+
+TODO:
+  * Full test suite,
+    - POST/Upload test,
+  * Benchmarking,
+    - GET benchmark,
+    - POST benchmark,
+    - Individual functions (viewHandler, randomString etc.).
