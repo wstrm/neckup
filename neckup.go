@@ -58,6 +58,8 @@ func init() {
 	flag.IntVar(&flagFilenameLen, "filename_len", defaultFlagFilenameLen, "length of the base filename (excluding extension)")
 
 	flag.Parse()
+
+	return
 }
 
 var (
@@ -96,7 +98,10 @@ func viewHandler(writer http.ResponseWriter, view string, data interface{}) {
 		log.Print(err)
 
 		http.Error(writer, "Failed to compile view.", http.StatusInternalServerError)
+		return
 	}
+
+	return
 }
 
 // uploadHandler handles upload requests.
@@ -210,4 +215,5 @@ func main() {
 		log.Fatal("Failed to listen: ", err)
 	}
 
+	return
 }
