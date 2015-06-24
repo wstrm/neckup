@@ -5,6 +5,4 @@ TODO:
   * Full test suite,
     - Check for file mismatch during POST test.
   * Benchmarking,
-    - GET benchmark,
-    - POST benchmark,
-    - Individual functions (viewHandler, randomString etc.).
+    - Refactor into seperate functionsto make benchmarking of uploadHandler & viewHandler possible.

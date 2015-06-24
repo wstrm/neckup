@@ -43,9 +43,9 @@ func equals(tb testing.TB, exp, act interface{}) {
 	}
 }
 
-func Test_randomString(test *testing.T) {
-	const randLength = 128
+const randLength = 24
 
+func Test_randomString(test *testing.T) {
 	equals(test, len(randomString(randLength)), randLength)
 }
 
@@ -108,4 +108,11 @@ func Test_viewHandler(test *testing.T) {
 
 	viewHandler(rec, "index", nil)
 	equals(test, http.StatusOK, rec.Code) // viewHandler should compile views without file map
+}
+
+func Benchmark_randomString(bench *testing.B) {
+
+	for n := 0; n < bench.N; n++ {
+		randomString(randLength)
+	}
 }
