@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>{{ .Title }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+</head>
+<body>
+
+<header>
+  <h1>{{ .Title }}</h1>
+</header>
+  
+<hr />
+
+<main>
+  {{ if .Data }}
+  <ul>
+    {{ range $key, $value := .Data }}
+    <li><strong>{{ $value }}</strong>: <a href="{{ $.FileURI }}/{{ $key }}">{{ $.FileURI }}/{{ $key }}</a></li>
+    {{ end }}
+  </ul>
+  {{ end }}
+
+  <h3>Form</h3>
+  <form method="post" action="/" enctype="multipart/form-data">
+    <fieldset>
+      <input type="file" name="files" multiple="multiple">
+      <input type="submit" name="upload" value="Upload">
+    </fieldset>
+  </form> 
+
+  <h3>cURL</h3>
+  <p>
+    <code>curl -F "file=@yourFileHere.ext" {{ .PageURI }}</code>
+  </p>
+
+</main>
+
+</body>
+</html>

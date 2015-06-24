@@ -22,6 +22,7 @@ var (
 	flagListenPort  string
 	flagUploadDir   string
 	flagTmpDir      string
+	flagIndexView   string
 	flagRandPrefix  int
 	flagFilenameLen int
 )
@@ -38,12 +39,13 @@ func init() {
 		defaultFlagFileURI     = "http://files.yourdomain.com"
 		defaultFlagListenPort  = "8080"
 		defaultFlagUploadDir   = "./files"
+		defaultFlagIndexView   = "minimal"
 		defaultFlagRandPrefix  = 24
 		defaultFlagFilenameLen = 6
 	)
 
 	// Variable flags
-	var defaultFlagTmpDir = os.TempDir()
+	defaultFlagTmpDir := os.TempDir()
 
 	flag.StringVar(&flagTitle, "title", defaultFlagTitle, "the title that is shown in the view")
 	flag.StringVar(&flagPageURI, "page_uri", defaultFlagPageURI, "the page URI that is used in the view")
@@ -51,6 +53,7 @@ func init() {
 	flag.StringVar(&flagListenPort, "port", defaultFlagListenPort, "port that the server shoud listen to")
 	flag.StringVar(&flagUploadDir, "upload_dir", defaultFlagUploadDir, "directory that the server should save all uploaded files to")
 	flag.StringVar(&flagTmpDir, "tmp_dir", defaultFlagTmpDir, "directory that the server should temporarily store file uploads")
+	flag.StringVar(&flagIndexView, "index_view", defaultFlagIndexView, "index view to show on root page")
 	flag.IntVar(&flagRandPrefix, "rand_prefix", defaultFlagRandPrefix, "length of random string that prefixes the temporary filename upon upload")
 	flag.IntVar(&flagFilenameLen, "filename_len", defaultFlagFilenameLen, "length of the base filename (excluding extension)")
 
@@ -58,8 +61,11 @@ func init() {
 }
 
 var (
-	views      = template.Must(template.ParseFiles("views/index.html"))         // Cache all the templates
-	characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") // Allowed characters for random string generator @see randomString
+	// Cache (all) the template(s)
+	views = template.Must(template.ParseGlob(filepath.Join("./views/", "*.html")))
+
+	// Allowed characters for random string generator @see randomString
+	characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 )
 
 // viewHandler renders views/templates.
@@ -164,10 +170,10 @@ func uploadHandler() http.Handler {
 
 			}
 
-			viewHandler(writer, "index", files)
+			viewHandler(writer, flagIndexView, files)
 
 		case "GET":
-			viewHandler(writer, "index", nil)
+			viewHandler(writer, flagIndexView, nil)
 
 		default:
 			writer.WriteHeader(http.StatusMethodNotAllowed)
