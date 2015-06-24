@@ -174,12 +174,13 @@ func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
 // be generated.
 func randomString(length int) string {
 
-	randBits := make([]rune, length)
-	for char := range randBits {
-		randBits[char] = characters[rand.Intn(len(characters))]
+	bits := make([]rune, length)
+
+	for char := range bits {
+		bits[char] = characters[rand.Intn(len(characters))]
 	}
 
-	return string(randBits)
+	return string(bits)
 }
 
 // main function initializes everything.
