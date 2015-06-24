@@ -3,7 +3,7 @@ neckup - Todo
 
 TODO:
   * Full test suite,
-    - POST/Upload test,
+    - Check for file mismatch during POST test.
   * Benchmarking,
     - GET benchmark,
     - POST benchmark,
