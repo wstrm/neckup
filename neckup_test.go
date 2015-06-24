@@ -39,10 +39,9 @@ func equals(tb testing.TB, exp, act interface{}) {
 }
 
 func Test_randomString(test *testing.T) {
+	const randLength = 128
 
-	resRandString := randomString(128)
-
-	equals(test, 128, len(resRandString))
+	equals(test, randLength, len(randomString(randLength)))
 }
 
 func Test_uploadHandler(test *testing.T) {

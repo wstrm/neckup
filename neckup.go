@@ -33,26 +33,26 @@ func init() {
 
 	// Constant flags
 	const (
-		DEFAULT_FLAG_TITLE        = "neckup"
-		DEFAULT_FLAG_PAGE_URI     = "http://yourdomain.com"
-		DEFAULT_FLAG_FILE_URI     = "http://files.yourdomain.com"
-		DEFAULT_FLAG_LISTEN_PORT  = "8080"
-		DEFAULT_FLAG_UPLOAD_DIR   = "./files"
-		DEFAULT_FLAG_RAND_PREFIX  = 24
-		DEFAULT_FLAG_FILENAME_LEN = 6
+		defaultFlagTitle       = "neckup"
+		defaultFlagPageURI     = "http://yourdomain.com"
+		defaultFlagFileURI     = "http://files.yourdomain.com"
+		defaultFlagListenPort  = "8080"
+		defaultFlagUploadDir   = "./files"
+		defaultFlagRandPrefix  = 24
+		defaultFlagFilenameLen = 6
 	)
 
 	// Variable flags
-	var DEFAULT_FLAG_TMP_DIR = os.TempDir()
+	var defaultFlagTmpDir = os.TempDir()
 
-	flag.StringVar(&flagTitle, "title", DEFAULT_FLAG_TITLE, "the title that is shown in the view")
-	flag.StringVar(&flagPageURI, "page_uri", DEFAULT_FLAG_PAGE_URI, "the page URI that is used in the view")
-	flag.StringVar(&flagFileURI, "file_uri", DEFAULT_FLAG_FILE_URI, "the file URI where the user can find the files")
-	flag.StringVar(&flagListenPort, "port", DEFAULT_FLAG_LISTEN_PORT, "port that the server shoud listen to")
-	flag.StringVar(&flagUploadDir, "upload_dir", DEFAULT_FLAG_UPLOAD_DIR, "directory that the server should save all uploaded files to")
-	flag.StringVar(&flagTmpDir, "tmp_dir", DEFAULT_FLAG_TMP_DIR, "directory that the server should temporarily store file uploads")
-	flag.IntVar(&flagRandPrefix, "rand_prefix", DEFAULT_FLAG_RAND_PREFIX, "length of random string that prefixes the temporary filename upon upload")
-	flag.IntVar(&flagFilenameLen, "filename_len", DEFAULT_FLAG_FILENAME_LEN, "length of the base filename (excluding extension)")
+	flag.StringVar(&flagTitle, "title", defaultFlagTitle, "the title that is shown in the view")
+	flag.StringVar(&flagPageURI, "page_uri", defaultFlagPageURI, "the page URI that is used in the view")
+	flag.StringVar(&flagFileURI, "file_uri", defaultFlagFileURI, "the file URI where the user can find the files")
+	flag.StringVar(&flagListenPort, "port", defaultFlagListenPort, "port that the server shoud listen to")
+	flag.StringVar(&flagUploadDir, "upload_dir", defaultFlagUploadDir, "directory that the server should save all uploaded files to")
+	flag.StringVar(&flagTmpDir, "tmp_dir", defaultFlagTmpDir, "directory that the server should temporarily store file uploads")
+	flag.IntVar(&flagRandPrefix, "rand_prefix", defaultFlagRandPrefix, "length of random string that prefixes the temporary filename upon upload")
+	flag.IntVar(&flagFilenameLen, "filename_len", defaultFlagFilenameLen, "length of the base filename (excluding extension)")
 
 	flag.Parse()
 }
