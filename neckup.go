@@ -64,13 +64,13 @@ var (
 
 // viewHandler renders views/templates.
 //
-// The function takes three arguments, resWriter which should contain
+// The function takes three arguments, writer which should contain
 // the response to write to, view which should contain the view excluding its
 // extension (index, upload etc. And not index.html, upload.html etc.).
 
 // Lastly the data argument takes an interface that is optional and can contain
 // data that should also be sent to the view.
-func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
+func viewHandler(writer http.ResponseWriter, view string, data interface{}) {
 
 	page := struct {
 		Title   string
@@ -84,8 +84,13 @@ func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
 		data,
 	}
 
-	views.ExecuteTemplate(resWriter, view+".html", &page)
+	err := views.ExecuteTemplate(writer, view+".html", &page)
 
+	if err != nil {
+		log.Print(err)
+
+		http.Error(writer, "Failed to compile view.", http.StatusInternalServerError)
+	}
 }
 
 // uploadHandler handles upload requests.
@@ -97,75 +102,77 @@ func viewHandler(resWriter http.ResponseWriter, view string, data interface{}) {
 // upload all files contained in the request and then call viewHandler
 // and thereby render the index with a populated data parameter containing
 // the status.
-func uploadHandler(resWriter http.ResponseWriter, req *http.Request) {
+func uploadHandler() http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 
-	switch req.Method {
+		switch request.Method {
 
-	case "GET":
-		viewHandler(resWriter, "index", nil)
+		case "POST":
 
-	case "POST":
-		reader, err := req.MultipartReader()
-		files := make(map[string]string)
-
-		if err != nil {
-			log.Print(err)
-
-			http.Error(resWriter, "Failed to read multipart stream.", http.StatusInternalServerError)
-			return
-		}
-
-		for {
-			randFilenamePart := randomString(flagRandPrefix)
-			fileHash := md5.New()
-			part, err := reader.NextPart()
-
-			if err == io.EOF {
-				break // Done
-			}
-
-			if part.FileName() == "" {
-				continue // Empty file name, skip current iteration
-			}
-
-			tempPath := filepath.Join(flagTmpDir, randFilenamePart+part.FileName())
-			tempDest, err := os.Create(tempPath)
-			defer tempDest.Close()
-
-			parsedPart := io.TeeReader(part, fileHash) // Feed hash with part
+			reader, err := request.MultipartReader()
+			files := make(map[string]string)
 
 			if err != nil {
 				log.Print(err)
 
-				http.Error(resWriter, "Something went wrong.", http.StatusInternalServerError)
+				http.Error(writer, "Failed to read multipart stream.", http.StatusInternalServerError)
 				return
 			}
 
-			if _, err := io.Copy(tempDest, parsedPart); err != nil {
-				log.Print(err)
+			for {
+				randFilenamePart := randomString(flagRandPrefix)
+				fileHash := md5.New()
+				part, err := reader.NextPart()
 
-				http.Error(resWriter, "Unable to parse file.", http.StatusInternalServerError)
-				return
+				if err == io.EOF {
+					break // Done
+				}
+
+				if part.FileName() == "" {
+					continue // Empty file name, skip current iteration
+				}
+
+				tempPath := filepath.Join(flagTmpDir, randFilenamePart+part.FileName())
+				tempDest, err := os.Create(tempPath)
+				defer tempDest.Close()
+
+				parsedPart := io.TeeReader(part, fileHash) // Feed hash with part
+
+				if err != nil {
+					log.Print(err)
+
+					http.Error(writer, "Something went wrong.", http.StatusInternalServerError)
+					return
+				}
+
+				if _, err := io.Copy(tempDest, parsedPart); err != nil {
+					log.Print(err)
+
+					http.Error(writer, "Unable to parse file.", http.StatusInternalServerError)
+					return
+				}
+
+				finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
+				finalFilepath := filepath.Join(flagUploadDir, finalFilename)
+
+				// Do not copy to storage path if file already exist
+				if _, err := os.Stat(finalFilepath); os.IsNotExist(err) {
+					os.Rename(tempPath, finalFilepath)
+				}
+
+				files[finalFilename] = part.FileName()
+
 			}
 
-			finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
-			finalFilepath := filepath.Join(flagUploadDir, finalFilename)
+			viewHandler(writer, "index", files)
 
-			// Do not copy to storage path if file already exist
-			if _, err := os.Stat(finalFilepath); os.IsNotExist(err) {
-				os.Rename(tempPath, finalFilepath)
-			}
+		case "GET":
+			viewHandler(writer, "index", nil)
 
-			files[finalFilename] = part.FileName()
-
+		default:
+			writer.WriteHeader(http.StatusMethodNotAllowed)
 		}
-
-		viewHandler(resWriter, "index", files)
-
-	default:
-		resWriter.WriteHeader(http.StatusMethodNotAllowed)
-	}
-
+	})
 }
 
 // randomString generates a random string and returns it.
@@ -189,7 +196,7 @@ func main() {
 	// Seed pseudo-random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	http.HandleFunc("/", uploadHandler)
+	http.Handle("/", uploadHandler())
 
 	err := http.ListenAndServe(":"+flagListenPort, nil)
 

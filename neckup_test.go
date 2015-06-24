@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"testing"
 )
@@ -41,26 +46,66 @@ func equals(tb testing.TB, exp, act interface{}) {
 func Test_randomString(test *testing.T) {
 	const randLength = 128
 
-	equals(test, randLength, len(randomString(randLength)))
+	equals(test, len(randomString(randLength)), randLength)
 }
 
-func Test_uploadHandler(test *testing.T) {
+func Test_uploadHandler_GET(test *testing.T) {
 
-	uploadHandle := http.HandlerFunc(uploadHandler)
+	handle := uploadHandler()
 
-	getRequest, err := http.NewRequest("GET", "", nil)
+	req, err := http.NewRequest("GET", "", nil)
+	rec := httptest.NewRecorder()
 	ok(test, err)
 
-	getWriter := httptest.NewRecorder()
+	handle.ServeHTTP(rec, req)
+	equals(test, http.StatusOK, rec.Code) // uploadHandler should call viewHandler which compiles the "index" view
+}
 
-	uploadHandle.ServeHTTP(getWriter, getRequest)
-	equals(test, getWriter.Code, http.StatusOK)
+func Test_uploadHandler_POST(test *testing.T) {
+
+	// Find "file.mock" (multi-line regexp)
+	reg := regexp.MustCompile("(?m)file.mock")
+
+	// Open mock file
+	path := "./mocks/file.mock"
+	file, err := os.Open(path)
+	ok(test, err)
+	defer file.Close()
+
+	// Initialize handle, body and multipart writer
+	handle := uploadHandler()
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// Create form in body with one file
+	part, err := writer.CreateFormFile("file", filepath.Base(path))
+	ok(test, err)
+
+	// Copy file into part
+	_, err = io.Copy(part, file)
+	ok(test, err)
+
+	// Close writer
+	err = writer.Close()
+	ok(test, err)
+
+	// Create request and start httptest recorder
+	req, err := http.NewRequest("POST", "/", body)
+	req.Header.Add("Content-Type", writer.FormDataContentType()) // This little fucker got me stuck for hours
+	rec := httptest.NewRecorder()
+	ok(test, err)
+
+	// Call handle through serveHTTP using recorder and request
+	handle.ServeHTTP(rec, req)
+	equals(test, http.StatusOK, rec.Code)
+	equals(test, true, reg.MatchString(rec.Body.String())) // Test if viewHandler compile view with the filename
+
 }
 
 func Test_viewHandler(test *testing.T) {
 
-	writer := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 
-	viewHandler(writer, "index", nil)
-	equals(test, writer.Code, http.StatusOK)
+	viewHandler(rec, "index", nil)
+	equals(test, http.StatusOK, rec.Code) // viewHandler should compile views without file map
 }
