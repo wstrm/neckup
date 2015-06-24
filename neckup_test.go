@@ -106,7 +106,7 @@ func Test_viewHandler(test *testing.T) {
 
 	rec := httptest.NewRecorder()
 
-	viewHandler(rec, "index", nil)
+	viewHandler(rec, "minimal", nil)
 	equals(test, http.StatusOK, rec.Code) // viewHandler should compile views without file map
 }
 
