@@ -52,7 +52,9 @@ SETUP:
     * Reload nginx and start neckup and you should be good to go!
 
 DEMO:
-  http://u.wiol.io
+  * Internet: http://u.wiol.io/ (merged files and upload servers)
+  * Hyperboria: http://hu.wiol.io/ (seperated files and upload servers)
+    - No ICANN: http://[fcd7:220b:18fe:ac59:836e:1777:5ec4:7d47]/
 
 TODO:
   See /TODO.txt
