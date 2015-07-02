@@ -38,15 +38,15 @@ SETUP:
         - $ git clone git@github.com:willeponken/neckup.git
         - $ cd neckup
 
-    * Comepile neckup.go and show the different flags available,,
+    * Comepile neckup.go and show the different flags available,
         - $ go build neckup.go
         - $ ./neckup --help
 
-    * Create seperated or merged nginx server block(s).
+    * Create seperated or merged nginx server block(s),
         - see examples/nginx/neckup_*
     
     * Optionally add an init script for the process.
-      Feel free to add more scripts in "examples/".
+      Feel free to add more scripts in "examples/",
         - see examples/upstart/neckup.conf (upstart)
 
     * Reload nginx and start neckup and you should be good to go!
