@@ -2,7 +2,7 @@ package main
 
 import (
 	"crypto/md5"
-	"encoding/hex"
+	"encoding/base64"
 	"flag"
 	"html/template"
 	"io"
@@ -163,7 +163,7 @@ func uploadHandler() http.Handler {
 					return
 				}
 
-				finalFilename := hex.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
+				finalFilename := base64.StdEncoding.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
 				finalFilepath := filepath.Join(flagUploadDir, finalFilename)
 
 				// Do not copy to storage path if file already exist
