@@ -47,7 +47,7 @@ SETUP:
     
     * Optionally add an init script for the process.
       Feel free to add more scripts in "examples/",
-        - see examples/upstart/neckup.conf (upstart)
+        - see examples/upstart/neckup_*.conf (upstart)
 
     * Reload nginx and start neckup and you should be good to go!
 

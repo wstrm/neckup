@@ -31,8 +31,8 @@ server {
   }
 
   location / {
-    root /neckup/file/path; # Chancge the location for where
-                            # the files resides.
+    root /home/neckup/neckup/files; # Chancge the location for where
+                                    # the files resides.
     expires 365d; # The uploaded files shouln't really change, ey?
   } 	
 }
