@@ -1,0 +1,38 @@
+# Merged home/upload page with also a file server,
+# = / requests goes to the proxy, and = /index.html
+# is redirected to = /. File server is at the /
+# location, which therefore takes care of every
+# request that did not match the home/upload page.
+#
+# If you'd like to keep file & upload page on
+# seperate domains, check out
+# /examples/nginx/neckup_seperated.
+server {
+  listen 80;
+  root /usr/share/nginx/html;
+  server_name yourdomain.com;
+
+  client_max_body_size 50M; # Max 50M files
+  charset UTF-8;
+
+  location = / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://127.0.0.1:8080; # Change the port here so it's 
+                                      # the same you configured.
+    proxy_redirect off;
+  }
+
+  location = /index.html {
+    return 301 $scheme://yourdomain.com/; # Redirect all = / index.html
+                                          # requests to the proxy.
+  }
+
+  location / {
+    root /neckup/file/path; # Chancge the location for where
+                            # the files resides.
+    expires 365d; # The uploaded files shouln't really change, ey?
+  } 	
+}

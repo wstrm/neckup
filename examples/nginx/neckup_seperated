@@ -1,3 +1,9 @@
+# This is a config with seperated servers for a file and
+# upload domain.
+#
+# For a merged file & upload page, check out
+# /examples/nginx/neckup_merged.
+
 # File server, all requests to files.yourdomain.com
 # should go here. Requests to the root will be redirected
 # to the home/upload page.

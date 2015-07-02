@@ -42,14 +42,9 @@ SETUP:
         - $ go build neckup.go
         - $ ./neckup --help
 
-    * Create a nginx server block that proxies requests to
-      localhost:8080 or w/e you specified,
-        - see second block in examples/nginx/neckup
+    * Create seperated or merged nginx server block(s).
+        - see examples/nginx/neckup_*
     
-    * Create a nginx server block that has the ./files as root
-      or w/e you specified,
-        - see first block in examples/nginx/neckup
-
     * Optionally add an init script for the process.
       Feel free to add more scripts in "examples/".
         - see examples/upstart/neckup.conf (upstart)
