@@ -27,7 +27,7 @@ SETUP:
   This setup uses a neckup user where everything is placed
   in its home directory (/home/neckup/neckup/).
 
-  You should already have setup a nginx web server.
+  You should already have setup a Nginx web server.
 
     * Create and setup the neckup user,
         - $ useradd -m neckup
@@ -38,7 +38,7 @@ SETUP:
         - $ git clone git@github.com:willeponken/neckup.git
         - $ cd neckup
 
-    * Comepile neckup.go and show the different flags available,
+    * Compile neckup.go and show the different flags available,
         - $ go build neckup.go
         - $ ./neckup --help
 
@@ -49,7 +49,7 @@ SETUP:
       Feel free to add more scripts in "examples/",
         - see examples/upstart/neckup_*.conf (upstart)
 
-    * Reload nginx and start neckup and you should be good to go!
+    * Reload Nginx and start neckup and you should be good to go!
 
 DEMO:
   * Internet: http://u.wiol.io/ (merged files and upload servers)
