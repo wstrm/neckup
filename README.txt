@@ -52,7 +52,7 @@ SETUP:
     * Reload Nginx and start neckup and you should be good to go!
 
 DEMO:
-  * Internet: http://nup.pw/
+  * Internet: https://nup.pw/
   * Hyperboria: http://h.nup.pw/
     - No ICANN: http://[fcd7:220b:18fe:ac59:836e:1777:5ec4:7d47]/ (note: the
       web server still uses the ICANN domain)
