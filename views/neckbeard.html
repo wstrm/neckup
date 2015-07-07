@@ -21,7 +21,7 @@
   {{ if .Data }}
   <ul>
     {{ range $key, $value := .Data }}
-    <li><strong>{{ $value }}</strong>: <a href="{{ $.FileURI }}/{{ $key }}">{{ $.FileURI }}/{{ $key }}</a></li>
+    <li><strong> {{ $value }} </strong>: <a href="{{ $.FileURI }}/{{ $key }}"> {{ $.FileURI }}/{{ $key }} </a></li>
     {{ end }}
   </ul>
   {{ end }}
