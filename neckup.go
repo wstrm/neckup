@@ -169,6 +169,8 @@ func uploadHandler() http.Handler {
 				// Do not copy to storage path if file already exist
 				if _, err := os.Stat(finalFilepath); os.IsNotExist(err) {
 					os.Rename(tempPath, finalFilepath)
+				} else { // Remove temporary file
+					os.Remove(tempPath)
 				}
 
 				files[finalFilename] = part.FileName()
