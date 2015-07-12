@@ -2,14 +2,20 @@ neckup - For autist neckbeards (TM)
 ===================================
 
 Simple upload service using cURL or form.
+GOALS:
+  * No framework,
+  * No JS,
+  * No database,
+  * Follow KISS-principles,
+  * Try to be neckbeardish?
 
 CONTRIBUTE:
-  Please, please, please teach me more about Go.
-  
-  This is my first project written in the language and
-  would love criticism! 
+  The project is open for contributions and neckbeardnes. Feel free to
+  contribute as long as you follow the goals (somewhat atleast).
 
-  It's obviously crappy code in some peoples eyes.
+  I'm kind of new to the Go language so you shouldn't be surprised to find
+  weird practices that do not fit the language, please create an issue or a
+  pull request if there's something to improve.
 
 BUILD:
   go build

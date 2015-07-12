@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"flag"
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -25,12 +26,16 @@ var (
 	flagIndexView   string
 	flagRandPrefix  int
 	flagFilenameLen int
+	flagVersion     bool
 )
 
 // init function initializes all the flags for later usage.
 // All flags can be user defined, but also they also have a
 // default value.
 func init() {
+
+	// Bump this upon version change (semver)
+	const currentVersion = "0.0.1"
 
 	// Constant flags
 	const (
@@ -56,8 +61,15 @@ func init() {
 	flag.StringVar(&flagIndexView, "index_view", defaultFlagIndexView, "index view to show on root page")
 	flag.IntVar(&flagRandPrefix, "rand_prefix", defaultFlagRandPrefix, "length of random string that prefixes the temporary filename upon upload")
 	flag.IntVar(&flagFilenameLen, "filename_len", defaultFlagFilenameLen, "length of the base filename (excluding extension)")
+	flag.BoolVar(&flagVersion, "v", false, "print current neckup version and exit")
 
 	flag.Parse()
+
+	// If version flag is true, print version and exit
+	if flagVersion {
+		fmt.Println(currentVersion)
+		os.Exit(0)
+	}
 
 	return
 }
