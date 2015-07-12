@@ -84,7 +84,7 @@ var (
 	views = template.Must(template.ParseGlob(filepath.Join("./views/", "*.html")))
 
 	// Allowed characters for random string generator @see randomString
-	characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	characters = []rune("abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 )
 
 // viewHandler renders views/templates.
