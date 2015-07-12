@@ -12,21 +12,23 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
 // Flag types
 var (
-	flagTitle       string
-	flagPageURI     string
-	flagFileURI     string
-	flagListenPort  string
-	flagUploadDir   string
-	flagTmpDir      string
-	flagIndexView   string
-	flagRandPrefix  int
-	flagFilenameLen int
-	flagVersion     bool
+	flagTitle         string
+	flagPageURI       string
+	flagFileURI       string
+	flagListenPort    string
+	flagUploadDir     string
+	flagTmpDir        string
+	flagIndexView     string
+	flagDisallowChars string
+	flagRandPrefix    int
+	flagFilenameLen   int
+	flagVersion       bool
 )
 
 // init function initializes all the flags for later usage.
@@ -39,14 +41,16 @@ func init() {
 
 	// Constant flags
 	const (
-		defaultFlagTitle       = "neckup"
-		defaultFlagPageURI     = "http://yourdomain.com"
-		defaultFlagFileURI     = "http://files.yourdomain.com"
-		defaultFlagListenPort  = "8080"
-		defaultFlagUploadDir   = "./files"
-		defaultFlagIndexView   = "minimal"
-		defaultFlagRandPrefix  = 24
-		defaultFlagFilenameLen = 6
+		defaultFlagTitle         = "neckup"
+		defaultFlagPageURI       = "http://yourdomain.com"
+		defaultFlagFileURI       = "http://files.yourdomain.com"
+		defaultFlagListenPort    = "8080"
+		defaultFlagUploadDir     = "./files"
+		defaultFlagIndexView     = "minimal"
+		defaultFlagDisallowChars = "l-"
+		defaultFlagRandPrefix    = 24
+		defaultFlagFilenameLen   = 6
+		defaultFlagVersion       = false
 	)
 
 	// Variable flags
@@ -59,9 +63,10 @@ func init() {
 	flag.StringVar(&flagUploadDir, "upload_dir", defaultFlagUploadDir, "directory that the server should save all uploaded files to")
 	flag.StringVar(&flagTmpDir, "tmp_dir", defaultFlagTmpDir, "directory that the server should temporarily store file uploads")
 	flag.StringVar(&flagIndexView, "index_view", defaultFlagIndexView, "index view to show on root page")
+	flag.StringVar(&flagDisallowChars, "disallow_chars", defaultFlagDisallowChars, "disallowed characters for final filenames")
 	flag.IntVar(&flagRandPrefix, "rand_prefix", defaultFlagRandPrefix, "length of random string that prefixes the temporary filename upon upload")
 	flag.IntVar(&flagFilenameLen, "filename_len", defaultFlagFilenameLen, "length of the base filename (excluding extension)")
-	flag.BoolVar(&flagVersion, "v", false, "print current neckup version and exit")
+	flag.BoolVar(&flagVersion, "v", defaultFlagVersion, "print current neckup version and exit")
 
 	flag.Parse()
 
@@ -175,7 +180,7 @@ func uploadHandler() http.Handler {
 					return
 				}
 
-				finalFilename := base64.URLEncoding.EncodeToString(fileHash.Sum(nil))[0:flagFilenameLen] + filepath.Ext(tempPath)
+				finalFilename := stripChars(base64.URLEncoding.EncodeToString(fileHash.Sum(nil)), flagDisallowChars)[0:flagFilenameLen] + filepath.Ext(tempPath)
 				finalFilepath := filepath.Join(flagUploadDir, finalFilename)
 
 				// Do not copy to storage path if file already exist
@@ -213,6 +218,20 @@ func randomString(length int) string {
 	}
 
 	return string(bits)
+}
+
+// stripChars strips unwanted characters from a string.
+//
+// The return value is either the stripped string or -1 if
+// no chars was declared.
+func stripChars(str, chars string) string {
+	return strings.Map(func(r rune) rune {
+		if strings.IndexRune(chars, r) < 0 {
+			return r
+		}
+
+		return -1
+	}, str)
 }
 
 // main function initializes everything.

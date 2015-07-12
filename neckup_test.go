@@ -49,6 +49,10 @@ func Test_randomString(test *testing.T) {
 	equals(test, len(randomString(randLength)), randLength)
 }
 
+func Test_stripChars(test *testing.T) {
+	equals(test, stripChars("qwertyuioppasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM-_", "qetuopsfhkzcbm_"), "wryiadgjlxvnQWERTYUIOPASDFGHJKLZXCVBNM-")
+}
+
 func Test_uploadHandler_GET(test *testing.T) {
 
 	handle := uploadHandler()
