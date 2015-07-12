@@ -1,0 +1,65 @@
+#!/bin/bash
+# Copyright (C) 2015 Magnus Kronnäs
+# Author: Magnus Kronnäs (krm)
+# With help from a script written by: 
+# Bruno "Polaco" Penteado (https://gist.github.com/bcap/5682077#file-terminal-control-sh)
+#
+# This program is free software:
+# You can redistribute it and/or modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, version. This program is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with this program.
+# If not, see <http://www.gnu.org/licenses/>.
+
+TC='\e['
+
+# Styles
+Bold="${TC}1m" # Bold text only, keep colors
+Undr="${TC}4m" # Underline text only, keep colors
+Rst="${TC}0m" # Reset all coloring and style
+
+# Basic
+Red="${TC}31m";
+Green="${TC}32m";
+Blue="${TC}34m";
+Cyan="${TC}36m";
+
+FailHyperboria="${Bold}You do not have hyperboria!\n\n
+				Is a better alternativ to the internet. \n
+                Please get it from https://github.com/cjdelisle/cjdns, but for \n
+                the moment we use the internet instead.\n";
+
+FailInternet="${Bold}The nup.pw server is down!\n\n 
+              Or you have no connection to the internet. Check your connections for\n 
+              any problems.\n\n 
+              
+              If it still a problem please send an email to neckbeard@nup.pw and\n  
+              explain how ${Undr}deeply disepointet$Rst$Red$Bold you are in him."
+
+function printMsg() {
+    echo -ne "$Bold$White[`date +%H:%M:%S`]$Rst $@";
+}
+
+printMsg "${Green}Uploading: $Bold $1 $Rst\n";
+
+function uploader() {
+    echo -en "$Blue $Bold"
+    result=$(curl --progress-bar -F "file=@$1" $2);
+    if [ $? -ne 0 ]; then
+        printMsg $Red$3$Rst "\n";
+        sleep 1;
+        return 1;
+    else 
+        printMsg "$ShowTimeStamp${Green}Done: $Bold $1 $Cyan-> $Green";
+        echo -ne $result | sed "s/.*\<li\>.*href=\"\(.*\)\".*li\>.*/\1/";
+        echo -e "$Rst";
+        return 0;
+	fi
+}
+
+echo -en "$Blue$Bold"
+
+uploader $1 "http://h.nup.pw/" "$FailHyperboria" || (printMsg "${Green}Trying with the internet.$Rst\n" && uploader $1 "https://nup.pw/" "$FailInternet");
