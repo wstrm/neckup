@@ -37,7 +37,7 @@ var (
 func init() {
 
 	// Bump this upon version change (semver)
-	const currentVersion = "0.0.2"
+	const currentVersion = "0.0.3"
 
 	// Constant flags
 	const (
