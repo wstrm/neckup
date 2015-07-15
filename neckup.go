@@ -47,7 +47,7 @@ func init() {
 		defaultFlagListenPort    = "8080"
 		defaultFlagUploadDir     = "./files"
 		defaultFlagIndexView     = "minimal"
-		defaultFlagDisallowChars = "l-"
+		defaultFlagDisallowChars = "lIO0-"
 		defaultFlagRandPrefix    = 24
 		defaultFlagFilenameLen   = 6
 		defaultFlagVersion       = false
