@@ -61,7 +61,7 @@ SETUP:
 DEMO:
   * Internet: https://nup.pw/
   * Hyperboria: http://h.nup.pw/
-    - No ICANN: http://[fcd7:220b:18fe:ac59:836e:1777:5ec4:7d47]/ (note: the
+    - No ICANN: http://[fcf5:894b:a246:fa31:f395:6e8d:31b6:f9f9]/ (note: the
       web server still uses the ICANN domain)
 
 TODO:
