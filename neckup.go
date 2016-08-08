@@ -9,7 +9,9 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"net"
 	"net/http"
+	"net/http/fcgi"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,7 +23,7 @@ var (
 	flagTitle         string
 	flagPageURI       string
 	flagFileURI       string
-	flagListenPort    string
+	flagFCGISocket    string
 	flagUploadDir     string
 	flagTmpDir        string
 	flagIndexView     string
@@ -44,7 +46,7 @@ func init() {
 		defaultFlagTitle         = "neckup"
 		defaultFlagPageURI       = "http://yourdomain.com"
 		defaultFlagFileURI       = "http://files.yourdomain.com"
-		defaultFlagListenPort    = "8080"
+		defaultFlagFCGISocket    = "/var/www/run/neckup.sock"
 		defaultFlagUploadDir     = "./files"
 		defaultFlagIndexView     = "minimal"
 		defaultFlagDisallowChars = "lIO0-"
@@ -59,7 +61,7 @@ func init() {
 	flag.StringVar(&flagTitle, "title", defaultFlagTitle, "the title that is shown in the view")
 	flag.StringVar(&flagPageURI, "page_uri", defaultFlagPageURI, "the page URI that is used in the view")
 	flag.StringVar(&flagFileURI, "file_uri", defaultFlagFileURI, "the file URI where the user can find the files")
-	flag.StringVar(&flagListenPort, "port", defaultFlagListenPort, "port that the server shoud listen to")
+	flag.StringVar(&flagFCGISocket, "socket", defaultFlagFCGISocket, "socket that the server should listen on")
 	flag.StringVar(&flagUploadDir, "upload_dir", defaultFlagUploadDir, "directory that the server should save all uploaded files to")
 	flag.StringVar(&flagTmpDir, "tmp_dir", defaultFlagTmpDir, "directory that the server should temporarily store file uploads")
 	flag.StringVar(&flagIndexView, "index_view", defaultFlagIndexView, "index view to show on root page")
@@ -240,12 +242,15 @@ func main() {
 	// Seed pseudo-random number generator
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	http.Handle("/", uploadHandler())
-
-	err := http.ListenAndServe(":"+flagListenPort, nil)
-
+	// http.Handle("/", uploadHandler())
+	listener, err := net.Listen("unix", flagFCGISocket)
 	if err != nil {
 		log.Fatal("Failed to listen: ", err)
+	}
+	defer listener.Close()
+	err = fcgi.Serve(listener, uploadHandler())
+	if err != nil {
+		log.Fatal("Failed to serve on socket: ", err)
 	}
 
 	return
